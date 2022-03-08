@@ -11,4 +11,4 @@ This was done by Michael Han, Anugrah Chemparathy, and Anson Hu as the final pro
 
 [training data](https://github.com/sjtuprog/fox-news-comments)
 
-Will maybe do more reformatting to separate code into different files for readability
+Will maybe do more reformatting to separate code into different files for readability because everything is stuffed into a very fat notebook.
