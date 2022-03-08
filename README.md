@@ -10,3 +10,5 @@ This code was originally written for Google Colab. This is a reproduction of the
 This was done by Michael Han, Anugrah Chemparathy, and Anson Hu as the final project for 6.864 (Advanced Natural Language Processing) in Fall 2021.
 
 [training data](https://github.com/sjtuprog/fox-news-comments)
+
+Will maybe do more reformatting to separate code into different files for readability
