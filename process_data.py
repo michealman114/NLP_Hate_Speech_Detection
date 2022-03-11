@@ -7,9 +7,6 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 
 import numpy as np
-import gensim
-import gensim.downloader as api
-import process_data 
 
 from spellchecker import SpellChecker
 
@@ -132,6 +129,12 @@ def custom_shuffle(comments,titles,labels):
 """
 # expected results of verification code
 
+train_lines = open("./Data/fox-news-comments.json", "r").readlines() #original 2015 data
+test_lines = open("./Data/modern_comments.json", "r").readlines() #modern data
+
+train_labels, train_comments, train_titles, train_max_len, train_max_title_len = process_data.clean(train_lines)
+test_labels, test_comments, test_titles, test_max_len, test_max_title_len = process_data.clean(test_lines)
+
 print(train_max_len) # 244
 print(train_max_title_len) # 13
 print(len(train_text)) # 1528
@@ -144,33 +147,3 @@ print(len(test_text)) # 102
 print(len(test_title)) # 102
 print(test_labels.shape) # (102,)
 """   
-
-path = api.load("word2vec-google-news-300", return_path=True)
-#print(path) #/root/gensim-data/word2vec-google-news-300/word2vec-google-news-300.gz
-
-embed = gensim.models.KeyedVectors.load_word2vec_format(path, binary=True)
-
-train_lines = open("fox-news-comments.json", "r").readlines() #original 2015 data
-test_lines = open("modern_comments.json", "r").readlines() #modern data
-
-train_labels, train_comments, train_titles, train_max_len, train_max_title_len = process_data.clean(train_lines)
-test_labels, test_comments, test_titles, test_max_len, test_max_title_len = process_data.clean(test_lines)
-
-train_comment_array, train_title_array = to_array(embed, train_comments, train_titles, train_max_len, train_max_title_len)
-test_comment_array, test_title_array = to_array(embed, test_comments, test_titles, test_max_len, test_max_title_len)
-
-train_comment_array,train_title_array,train_labels = custom_shuffle(train_comment_array,train_title_array,train_labels)
-test_comment_array, test_title_array, test_labels = custom_shuffle(test_comment_array, test_title_array, test_labels)
-
-"""
-print(train_data_array.dtype) # float64
-print(type(train_data_array)) # <class 'numpy.ndarray'>
-print(train_title_array.dtype) # float64
-print(type(train_title_array)) # <class 'numpy.ndarray'>
-"""
-
-train_comment_array = np.float32(train_comment_array)
-train_title_array = np.float32(train_title_array)
-
-test_comment_array = np.float32(test_comment_array)
-test_title_array = np.float32(test_title_array)
