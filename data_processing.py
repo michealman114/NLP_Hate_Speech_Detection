@@ -6,24 +6,21 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 
-import numpy as np
-
 from spellchecker import SpellChecker
 
-spell = SpellChecker()
-spell.word_frequency.add('obama')
-spell.word_frequency.add('blm')
-spell.word_frequency.add('killing')
-
+stop_words = set(stopwords.words('english'))
+stop_words.add('')
 
 nltk.download('stopwords')
 nltk.download('wordnet')
 nltk.download('punkt')
 nltk.download('averaged_perceptron_tagger')
 
+spell = SpellChecker()
+spell.word_frequency.add('obama')
+spell.word_frequency.add('blm')
+spell.word_frequency.add('killing')
 
-stop_words = set(stopwords.words('english'))
-stop_words.add('')
 
 """
 Cleans the dataset and returns the 
@@ -126,24 +123,24 @@ def custom_shuffle(comments,titles,labels):
 
     return (shuffled_comments, shuffled_titles, shuffled_labels)
 
-"""
-# expected results of verification code
 
-train_lines = open("./Data/fox-news-comments.json", "r").readlines() #original 2015 data
-test_lines = open("./Data/modern_comments.json", "r").readlines() #modern data
+def process_data(embed):
+    train_lines = open("./Data/fox-news-comments.json", "r").readlines() # original 2015 data
+    test_lines = open("./Data/modern_comments.json", "r").readlines() # modern data
 
-train_labels, train_comments, train_titles, train_max_len, train_max_title_len = process_data.clean(train_lines)
-test_labels, test_comments, test_titles, test_max_len, test_max_title_len = process_data.clean(test_lines)
+    train_labels, train_comments, train_titles, train_max_len, train_max_title_len = clean(train_lines)
+    test_labels, test_comments, test_titles, test_max_len, test_max_title_len = clean(test_lines)
 
-print(train_max_len) # 244
-print(train_max_title_len) # 13
-print(len(train_text)) # 1528
-print(len(train_title)) # 1528
-print(train_labels.shape) # (1528,)
+    train_comment_array, train_title_array = to_array(embed, train_comments, train_titles, train_max_len, train_max_title_len)
+    test_comment_array, test_title_array = to_array(embed, test_comments, test_titles, test_max_len, test_max_title_len)
 
-print(test_max_len) # 126
-print(test_max_title_len) # 19
-print(len(test_text)) # 102
-print(len(test_title)) # 102
-print(test_labels.shape) # (102,)
-"""   
+    train_comment_array, train_title_array, train_labels = custom_shuffle(train_comment_array,train_title_array,train_labels)
+    test_comment_array, test_title_array, test_labels = custom_shuffle(test_comment_array, test_title_array, test_labels)
+
+    train_comment_array = np.float32(train_comment_array)
+    train_title_array = np.float32(train_title_array)
+
+    test_comment_array = np.float32(test_comment_array)
+    test_title_array = np.float32(test_title_array)
+
+    return {'train' : [train_comment_array, train_title_array, train_labels], 'test' : [test_comment_array, test_title_array, test_labels]}
