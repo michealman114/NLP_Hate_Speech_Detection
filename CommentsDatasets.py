@@ -2,8 +2,8 @@ import torch
 import torch.nn as nn 
 import torch.utils.data as torch_data
 
-class CommentsDataset(torch.utils.data.Dataset):
-    def __init__(self, list_IDs, comments, labels, titles = None):
+class GeneralDataset(torch.utils.data.Dataset):
+    def __init__(self, comments, labels, titles = None):
         """
         comments/titles: (batch_size, max_length, embed_dim)
         labels: (batch_size,)
@@ -12,21 +12,43 @@ class CommentsDataset(torch.utils.data.Dataset):
         self.data = comments
         self.titles = titles
         self.labels = labels
-        self.list_IDs = list_IDs
+        
+        self.length = labels.shape[0]
 
     def __len__(self):
-        return len(self.list_IDs)
+        return self.length
 
     def __getitem__(self, index):
-        # Select sample
-        ID = self.list_IDs[index]
-
-        # Load data and get label
-        X = self.data[ID,:,:]
-        y = self.labels[ID]
+        comment = self.data[index]
+        label = self.labels[index]
 
         if self.titles is not None:
-            t = self.titles[ID,:,:]
-            return X, t, y
+            title = self.titles[index]
+            return comment,title,label
         else:
-            return X, y
+            return comment,label
+
+class BERTDataset(torch.utils.data.Dataset):
+    def __init__(self, comments, comments_am, labels):
+        """
+        comments/titles: (batch_size, max_length, embed_dim)
+        comments/titles_am: (batch_size,max_length) (the attention masks)
+        labels: (batch_size,)
+        """
+        #Initialization
+        self.comments = comments
+        self.comments_am = comments_am
+
+        self.labels = labels
+        self.length = labels.shape[0]
+
+    def __len__(self):
+        return self.length
+
+    def __getitem__(self, index):
+        # Load data and get label
+        comment = self.comments[index]
+        comment_am = self.comments_am[index]
+        label = self.labels[index]
+
+        return comment,comment_am,label
