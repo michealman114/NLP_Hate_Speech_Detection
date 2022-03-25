@@ -29,3 +29,25 @@ class GeneralDataset(torch.utils.data.Dataset):
         label = self.labels[index]
 
         return comment,comment_pm,label
+
+class BERT_raw_Dataset(torch.utils.data.Dataset):
+    def __init__(self, comments, titles, labels):
+        """
+        comments/titles: (batch_size, max_length, embed_dim)
+        labels: (batch_size,)
+        """
+        self.comments = comments
+        self.titles = titles
+        self.labels = labels
+
+        self.length = labels.shape[0]
+
+    def __len__(self):
+        return self.length
+
+    def __getitem__(self, index):
+        comment = self.comments[index]
+        title = self.titles[index]
+        label = self.labels[index]
+
+        return comment,title,label

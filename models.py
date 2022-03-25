@@ -10,7 +10,7 @@ class BaseModel(nn.Module): # single direction lstm, no attention
     
     self.hidden_size = hidden_size
     
-    self.lstm = nn.LSTM(input_size = embed_dim, hidden_size = hidden_size, num_layers = 1, batch_first = True, dropout = 0.2, bidirectional = False)
+    self.lstm = nn.LSTM(input_size = embed_dim, hidden_size = hidden_size, num_layers = 1, batch_first = True, bidirectional = False)
     
     # two linear layers for context (final hidden state) => binary classification
     self.linear1 = nn.Linear(hidden_size, 150) 
@@ -35,11 +35,13 @@ class Full_LSTM_Model(nn.Module):
   def __init__(self, hidden_size = 100, embed_dim = 300, bidi = True, attention = True):
     super(Full_LSTM_Model, self).__init__()
     if attention: assert bidi # attention only if the LSTM is bidirectional
+    print(f"LSTM with bidirectional = {bidi}, attention = {attention}")
     
     self.hidden_size = hidden_size 
     self.attention = attention
     
-    self.lstm = nn.LSTM(input_size = embed_dim, hidden_size = hidden_size, num_layers = 1, batch_first = True, dropout = 0.2, bidirectional = bidi)
+    dropout = 0
+    self.lstm = nn.LSTM(input_size = embed_dim, hidden_size = hidden_size, num_layers = 1, batch_first = True, dropout = dropout, bidirectional = bidi)
 
     # two linear layers for output of lstm: (final hidden state) => binary classification
     self.linear1 = nn.Linear(self.hidden_size*2 if bidi else self.hidden_size, 150) 

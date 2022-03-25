@@ -11,7 +11,9 @@ import numpy as np
 from CommentsDatasets import *
 from tqdm import tqdm
 
-def train(training_dataset, n_epochs, batch_size, device, modeltype, model = None, embed_dim = None, bidi = False, attention = False):
+def train(training_dataset, n_epochs, batch_size, device, modeltype, model = None, embed_dim = None, bidi = False, attention = False, check_data = None):
+    intermediate_checks = True if (check_data is not None) else False
+
     if model is None:
         """
         embed_dim = 768 for BERT embeddings
@@ -45,31 +47,19 @@ def train(training_dataset, n_epochs, batch_size, device, modeltype, model = Non
         print('Loss:', epoch_loss)
         losses.append(epoch_loss)
 
+        if intermediate_checks and (epoch % 5 == 0):
+            print(f'Intermediate Performance Evaluation for Epoch {epoch}')
+            test_comments, test_comments_pm, test_labels = check_data            
+            iter_loss, (y_pred, y_true) = test_model(model, test_comments, test_comments_pm, test_labels, device)
+            y_pred = torch.round(y_pred).cpu().detach().numpy()
+            print('Accuracy:',accuracy_score(y_true,y_pred))
+            print('Precision, Recall, F1:',precision_recall_fscore_support(y_true, y_pred, average='binary'))
+            model.train()
     
     return model,losses
 
 
-def kfold_crossvalidation(k, comments, comments_pm, labels, modeltype, device, n_epochs = 30, embed_dim = 300, bidi = False, attention = False, batch_size = 128):
-    def test_model(model, test_comments, test_comments_pm, test_labels):
-        test_dataset = GeneralDataset(test_comments, test_comments_pm, test_labels)
-        test_loader = torch_data.DataLoader(test_dataset, batch_size=len(test_labels))
-        
-        loss_fn = nn.BCELoss()
-        predictions = None
-
-        model.eval()
-        with torch.no_grad():
-            for comment, comment_pm, label in test_loader:
-                comment = comment.to(device)
-                label = label.to(device).type(torch.float32)
-
-                preds = model.forward(comment)
-                predictions = preds
-
-                loss = loss_fn(preds, label)
-                print(loss.item())
-        
-        return loss.item(), (preds, test_labels)
+def kfold_crossvalidation(k, comments, comments_pm, labels, modeltype, device, n_epochs = 30, embed_dim = 300, bidi = False, attention = False, batch_size = 128, intermediate_checks = False):
     
     num_samples , _ , _ = comments.shape
     fraction = 1/k
@@ -84,6 +74,8 @@ def kfold_crossvalidation(k, comments, comments_pm, labels, modeltype, device, n
     all_labels = []
     # run the ith split
     for i in range(k):
+        print('\n=======================================\n')
+        print(f'running split {i+1}:\n')
         train_indices = []
         test_indices = segment_indices[i]
         for j in range(k):
@@ -101,12 +93,17 @@ def kfold_crossvalidation(k, comments, comments_pm, labels, modeltype, device, n
 
         training_data = GeneralDataset(train_comments_i, train_comments_pm_i, train_labels_i)
         #def train(training_dataset, n_epochs, batch_size, device, modeltype, model = None, embed_dim = None, bidi = False, attention = False):
-        model_i, loss_i = train(training_data, n_epochs, batch_size, device, modeltype, embed_dim = embed_dim, bidi = bidi, attention = attention)
+        if intermediate_checks:
+            check_data = [test_comments_i, test_comments_pm_i, test_labels_i]
+            model_i, loss_i = train(training_data, n_epochs, batch_size, device, modeltype, embed_dim = embed_dim, bidi = bidi, attention = attention, check_data = check_data)
+        else:
+            model_i, loss_i = train(training_data, n_epochs, batch_size, device, modeltype, embed_dim = embed_dim, bidi = bidi, attention = attention)
 
-        iter_loss, (y_pred, y_true) = test_model(model_i, test_comments_i, test_comments_pm_i, test_labels_i)
+        iter_loss, (y_pred, y_true) = test_model(model_i, test_comments_i, test_comments_pm_i, test_labels_i, device)
         y_pred = torch.round(y_pred).cpu().detach().numpy()
         all_preds.append(y_pred)
         all_labels.append(y_true)
+        print(f'Final Evaluation for model {i+1}')
         print('Accuracy:',accuracy_score(y_true,y_pred))
         print('Precision, Recall, F1:',precision_recall_fscore_support(y_true, y_pred, average='binary'))
     
@@ -116,3 +113,23 @@ def kfold_crossvalidation(k, comments, comments_pm, labels, modeltype, device, n
     print('Accuracy:', accuracy_score(l, p))
     print('Precision, Recall, F1:', precision_recall_fscore_support(l, p, average = 'binary'))
 
+def test_model(model, test_comments, test_comments_pm, test_labels, device):
+    test_dataset = GeneralDataset(test_comments, test_comments_pm, test_labels)
+    test_loader = torch_data.DataLoader(test_dataset, batch_size=len(test_labels))
+    
+    loss_fn = nn.BCELoss()
+    predictions = None
+
+    model.eval()
+    with torch.no_grad():
+        for comment, comment_pm, label in test_loader:
+            comment = comment.to(device)
+            label = label.to(device).type(torch.float32)
+
+            preds = model.forward(comment)
+            predictions = preds
+
+            loss = loss_fn(preds, label)
+            print(loss.item())
+    
+    return loss.item(), (preds, test_labels)
