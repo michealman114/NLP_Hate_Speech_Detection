@@ -34,6 +34,8 @@ Also, when we were cleaning up the dataset before feeding into word2vec we origi
     - Accuracy: 0.7381578947368421
     - Precision, Recall, F1: (0.5481283422459893, 0.47235023041474655, 0.5074257425742573, None)
 
+Training on BERT embeddings works best with 10 epochs (15 epochs isn't bad either, but 10 just slightly outperforms it). Yay for no more overfitting.
+
 Also here's the W2V performance for those curious
 
 **Word2Vec Embeddings 10-fold cross validation (30 epochs)**
