@@ -2,42 +2,20 @@ import torch
 import torch.nn as nn 
 import torch.utils.data as torch_data
 
+
 class GeneralDataset(torch.utils.data.Dataset):
-    def __init__(self, comments, labels, titles = None):
+    """"
+    Dataset that works with attention masks
+    """
+    def __init__(self, comments, comments_pm, labels):
         """
         comments/titles: (batch_size, max_length, embed_dim)
-        labels: (batch_size,)
-        """
-        #Initialization
-        self.data = comments
-        self.titles = titles
-        self.labels = labels
-        
-        self.length = labels.shape[0]
-
-    def __len__(self):
-        return self.length
-
-    def __getitem__(self, index):
-        comment = self.data[index]
-        label = self.labels[index]
-
-        if self.titles is not None:
-            title = self.titles[index]
-            return comment,title,label
-        else:
-            return comment,label
-
-class BERTDataset(torch.utils.data.Dataset):
-    def __init__(self, comments, comments_am, labels):
-        """
-        comments/titles: (batch_size, max_length, embed_dim)
-        comments/titles_am: (batch_size,max_length) (the attention masks)
+        #comments/titles_pm: (batch_size,max_length) (the padding masks)
         labels: (batch_size,)
         """
         #Initialization
         self.comments = comments
-        self.comments_am = comments_am
+        self.comments_pm = comments_pm
 
         self.labels = labels
         self.length = labels.shape[0]
@@ -46,9 +24,8 @@ class BERTDataset(torch.utils.data.Dataset):
         return self.length
 
     def __getitem__(self, index):
-        # Load data and get label
         comment = self.comments[index]
-        comment_am = self.comments_am[index]
+        comment_pm = self.comments_pm[index]
         label = self.labels[index]
 
-        return comment,comment_am,label
+        return comment,comment_pm,label
