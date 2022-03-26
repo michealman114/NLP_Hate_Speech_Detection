@@ -14,7 +14,8 @@ You can read our writeup on the original iteration of this project [here](https:
 
 
 # Recent Results
-Some new results - we evaluated the performance of variants of BERT for hate speech classification
+Some new results - we evaluated the performance of variants of BERT for hate speech classification. Here's performance of the Distil variant:
+
 DistilBERT for sequence classification results (fine-tuned on 700, Tested on 170) - 3 epochs
 - Test Performance
     - Accuracy: 0.7325581395348837
