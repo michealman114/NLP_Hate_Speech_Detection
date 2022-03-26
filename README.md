@@ -14,7 +14,21 @@ You can read our writeup on the original iteration of this project [here](https:
 
 
 # Recent Results
-Some new results - we evaluated the performance of variants of BERT for hate speech classification
+Some new results - we evaluated the performance of variants of BERT for hate speech classification on a balanced dataset (50% hate speech, 50% non hate speech):
+
+Fine-tuning BERTForSequenceClassification with 700 samples and testing on the remaining 170 achieved extremely good results within just 2 epochs, substantially outperforming the author's results:
+
+- Test Performance (2 Epochs)
+    - Accuracy: 0.7848837209302325
+    - Precision, Recall, F1: (0.7261904761904762, 0.8133333333333334, 0.7672955974842767, None)
+
+The performance with 3 epochs was not quite as good (overfitting), so fine-tuning for 2 epochs is optimal
+- Test Performance (3 Epochs)
+    - Accuracy: 0.7267441860465116
+    - Precision, Recall, F1: (0.6346153846153846, 0.88, 0.7374301675977655, None)
+
+For comparison here are the performances of DistilBERT trained on 700, and then 300 samples (and evaluated on the remaining 170/470 samples)
+
 DistilBERT for sequence classification results (fine-tuned on 700, Tested on 170) - 3 epochs
 - Test Performance
     - Accuracy: 0.7325581395348837

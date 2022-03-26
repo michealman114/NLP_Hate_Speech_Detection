@@ -9,6 +9,19 @@ Here are some comments about training in general:
 - However this led to issues with the hyperparameters which mattered enormously (a lesson learned the hard way). Training on too high of a learning rate didn't really work because the model would just oscillate between classifying everything as negative, and classifying everything as positive. We ended up trying a range of learning rates (between 1e-5 and 5e-4) before finally settling on 2e-5 (which was on the lower end of values suggested in the paper). Also setting up (a simple) LR scheduler empirically worked very well here.
 - You really don't need many epochs to fine-tune BERT, even just 3 
 
+*Fine-tuning BERTForSequenceClassification:*
+
+We trained BERTForSequenceClassification with 700 samples and tested on the remaining 170.
+
+On just 2 epochs, it had achieved extremely good results, substantially outperforming the author's results:
+- Accuracy: 0.7848837209302325
+- Precision, Recall, F1: (0.7261904761904762, 0.8133333333333334, 0.7672955974842767, None)
+
+The performance with 3 epochs was not quite as good (overfitting), but the performance with 2 epochs is enough to be extremely impressive.
+- Accuracy: 0.7267441860465116
+- Precision, Recall, F1: (0.6346153846153846, 0.88, 0.7374301675977655, None)
+
+*Fine-tuning DistilBERT:*
 
 When we finally tuned the parameters and set up training perfectly we acheived extremely good performance from DistilBERT:
 DistilBERT for sequence classification results (fine-tuned on 100, tested on 50):
