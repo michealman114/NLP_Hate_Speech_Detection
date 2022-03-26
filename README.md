@@ -28,7 +28,7 @@ DistilBERT for sequence classification results (fine-tuned on 300, validated on 
     - Accuracy: 0.717391304347826
     - Precision, Recall, F1: (0.683982683982684, 0.7348837209302326, 0.7085201793721975, None)
 
-
+You can see more of our results from this new iteration of the project in the file "AssortedResults.md"
 
 
 # Other Notes
